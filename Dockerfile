@@ -3,7 +3,7 @@ FROM ubuntu:16.04
 RUN apt-get update
 RUN apt-get install -y apache2 apache2-utils
 
-RUN a2enmod dav dav_fs
+RUN a2enmod dav dav_fs include
 RUN a2dissite 000-default
 
 ENV APACHE_RUN_USER www-data
