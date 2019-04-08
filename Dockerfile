@@ -18,7 +18,6 @@ RUN mkdir -p /var/webdav; chown www-data /var/webdav
 
 ADD webdav.conf /etc/apache2/sites-available/webdav.conf
 RUN a2ensite webdav
-RUN service apache2 stop
 
 ADD run.sh /
 RUN chmod +x /run.sh
@@ -27,4 +26,4 @@ EXPOSE 80
 
 VOLUME /var/webdav
 
-CMD ["/run.sh"]
+CMD ["/usr/sbin/apache2ctl", "-DFOREGROUND"]
