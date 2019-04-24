@@ -18,6 +18,7 @@ RUN mkdir -p /var/webdav; chown www-data /var/webdav
 
 ADD webdav.conf /etc/apache2/sites-available/webdav.conf
 RUN a2ensite webdav
+RUN service apache2 stop
 
 ADD run.sh /
 RUN chmod +x /run.sh
