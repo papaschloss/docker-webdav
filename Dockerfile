@@ -28,4 +28,4 @@ EXPOSE 80
 
 VOLUME /var/webdav
 
-CMD ["/usr/sbin/apache2ctl", "-DFOREGROUND"]
+CMD ["/usr/sbin/apache2ctl", "-D","FOREGROUND"]
