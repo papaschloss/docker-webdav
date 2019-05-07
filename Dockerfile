@@ -20,7 +20,6 @@ ADD webdav.conf /etc/apache2/sites-available/webdav.conf
 RUN a2ensite webdav
 ADD run.sh /	
 RUN chmod +x /run.sh
-RUN rm -f /var/run/apache2/apache2.pid
 
 EXPOSE 80
 
