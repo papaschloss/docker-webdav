@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 RUN apt-get update
-RUN apt-get -y -v install apache2
+RUN apt-get --no-install-recommends -y install apache2
 RUN /usr/sbin/a2enmod dav dav_fs include
 RUN /usr/sbin/a2dissite 000-default
 
