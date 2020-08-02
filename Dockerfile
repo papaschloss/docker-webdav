@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 RUN apt-get update
-RUN apt-get --no-install-recommends -y --no-cache install \
+RUN apt-get --no-install-recommends -y -v install \
   apache2 apache2-utils
 RUN apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
