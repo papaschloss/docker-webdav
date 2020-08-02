@@ -1,30 +1,53 @@
-FROM ubuntu:18.04
+FROM httpd:alpine
 
-RUN apt-get update
-RUN apt-get --no-install-recommends -y -v install \
-  apache2 apache2-bin apache2-utils
-RUN apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+# These variables are inherited from the httpd:alpine image:
+# ENV HTTPD_PREFIX /usr/local/apache2
+# WORKDIR "$HTTPD_PREFIX"
 
-RUN /usr/sbin/a2enmod dav dav_fs include
-RUN /usr/sbin/a2dissite 000-default
+# Copy in our configuration files.
+COPY conf/ conf/
 
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
-ENV APACHE_LOG_DIR /var/log/apache2
-ENV APACHE_PID_FILE /var/run/apache2.pid
-ENV APACHE_LOCK_DIR /var/lock/apache2
-ENV APACHE_RUN_DIR /var/run/apache2
+RUN set -ex; \
+    # Create empty default DocumentRoot.
+    mkdir -p "/var/www/html"; \
+    # Create directories for Dav data and lock database.
+    mkdir -p "/var/lib/dav/data"; \
+    touch "/var/lib/dav/DavLock"; \
+    chown -R www-data:www-data "/var/lib/dav"; \
+    \
+    # Enable DAV modules.
+    for i in dav dav_fs; do \
+        sed -i -e "/^#LoadModule ${i}_module.*/s/^#//" "conf/httpd.conf"; \
+    done; \
+    \
+    # Make sure authentication modules are enabled.
+    for i in authn_core authn_file authz_core authz_user auth_basic auth_digest; do \
+        sed -i -e "/^#LoadModule ${i}_module.*/s/^#//" "conf/httpd.conf"; \
+    done; \
+    \
+    # Make sure other modules are enabled.
+    for i in alias headers mime setenvif; do \
+        sed -i -e "/^#LoadModule ${i}_module.*/s/^#//" "conf/httpd.conf"; \
+    done; \
+    \
+    # Run httpd as "www-data" (instead of "daemon").
+    for i in User Group; do \
+        sed -i -e "s|^$i .*|$i www-data|" "conf/httpd.conf"; \
+    done; \
+    \
+    # Include enabled configs and sites.
+    printf '%s\n' "Include conf/conf-enabled/*.conf" \
+        >> "conf/httpd.conf"; \
+    printf '%s\n' "Include conf/sites-enabled/*.conf" \
+        >> "conf/httpd.conf"; \
+    \
+    # Enable dav and default site.
+    mkdir -p "conf/conf-enabled"; \
+    mkdir -p "conf/sites-enabled"; \
+    ln -s ../conf-available/dav.conf "conf/conf-enabled"; \
+    ln -s ../sites-available/default.conf "conf/sites-enabled"; \
 
-RUN /bin/mkdir -p /var/lock/apache2; /bin/chown www-data /var/lock/apache2
-RUN /bin/mkdir -p /var/webdav; /bin/chown www-data /var/webdav
-
-ADD webdav.conf /etc/apache2/sites-available/webdav.conf
-RUN /usr/sbin/a2ensite webdav
-ADD run.sh /	
-RUN /bin/chmod +x /run.sh
-
-EXPOSE 80
-
-VOLUME /var/webdav
-
-CMD ["/run.sh"]
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+EXPOSE 80/tcp
+ENTRYPOINT [ "docker-entrypoint.sh" ]
+CMD [ "httpd-foreground" ]
