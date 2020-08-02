@@ -1,7 +1,7 @@
 #!/bin/sh	
 set -e
 
-apt-get update && apt-get upgrade 
+apt-get update && apt-get upgrade -y
 apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Apache gets grumpy about PID files pre-existing
