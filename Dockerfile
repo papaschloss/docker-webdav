@@ -1,7 +1,9 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 RUN apt-get update
-RUN apt-get install -y apache2 apache2-utils
+RUN apt-get --no-install-recommends -y -v --no-cache install \
+  apache2 apache2-utils
+RUN apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
 RUN a2enmod dav dav_fs include
 RUN a2dissite 000-default
