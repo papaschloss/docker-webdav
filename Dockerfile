@@ -1,9 +1,8 @@
 FROM ubuntu:18.04
 
 RUN apt-get update
-RUN apt-get --no-install-recommends -y -v install \
+RUN apt-get -y -v install \
   apache2 apache2-bin apache2-utils
-RUN apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
 RUN /usr/sbin/a2enmod dav dav_fs include
 RUN /usr/sbin/a2dissite 000-default
@@ -22,6 +21,8 @@ ADD webdav.conf /etc/apache2/sites-available/webdav.conf
 RUN /usr/sbin/a2ensite webdav
 ADD run.sh /	
 RUN /bin/chmod +x /run.sh
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 EXPOSE 80
 
