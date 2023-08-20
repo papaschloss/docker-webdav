@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 RUN apt-get update
 RUN apt-get --no-install-recommends -y install apache2
-RUN /usr/sbin/a2enmod dav dav_fs include auth_digest deflate
+RUN /usr/sbin/a2enmod dav dav_fs include auth_digest deflate headers
 RUN /usr/sbin/a2dissite 000-default
 
 ENV APACHE_RUN_USER www-data
